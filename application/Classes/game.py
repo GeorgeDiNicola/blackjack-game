@@ -135,7 +135,7 @@ class Game:
 	# take hand param
 	def resolve_wager(self):
 		if self.player_hand.get_blackjack_status():
-			self.wager.collect_winnings(bßlackjack=True)
+			self.wager.collect_winnings(blackjack=True)
 		elif self.player_hand.get_over_21_status():  # player lost
 			self.wager.lose_wager()
 		elif self.dealer_hand.get_over_21_status():  # player won
