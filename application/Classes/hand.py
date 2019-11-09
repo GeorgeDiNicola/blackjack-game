@@ -20,11 +20,14 @@ class Hand:
 		if len(self.cards) == 2:  # blackjack is only possible with 2 cards in hand
 			self._detect_blackjack()
 
-	def remove_top_card(self):
+	def remove_last_card(self):
 		try:
-			return self.cards.pop(0)
+			card = self.cards.pop()
 		except:
 			print('There are not any cards in the hand.')
+		else:
+			self.sum_of_cards -= card.value
+			return card
 
 	def _update_sum_of_cards(self, card):
 		self.sum_of_cards += card.value

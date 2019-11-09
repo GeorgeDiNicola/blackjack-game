@@ -9,6 +9,7 @@ from Classes.card import Card
 from Classes.hand import Hand
 from Classes.wager import Wager
 from strategyTables import hard_totals, soft_totals, pair_splitting
+from utils import *
 
 
 # The main controller
@@ -28,7 +29,7 @@ class Game:
 
 		play_again = True
 			
-		while play_again and self.wager.get_current_value_owned() > 0:
+		while play_again:
 			
 			self.deck = Deck()
 			self.deck.shuffle()
@@ -41,38 +42,36 @@ class Game:
 
 			self.wager.make_wager()
 
-			os.system('clear')  # only for mac and linux
+			clear_window()
+
 			self.deal_cards()
 
 			self.dealer_hand.cards[first_card].flip_face_down()  # flip first dealer card face down
-
 			self.display_state_of_game()
 
-			if self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
-				choice = self.get_valid_input('\nWould you like to split? ', ['y','n'], 'Not a valid response')
-
 			if self.check_for_any_blackjack():
-				self.update_wager()
+				self.resolve_wager()
 				self.dealer_hand.cards[first_card].flip_face_up()
 				self.display_state_of_game()
 				self.display_final_outcome()
 			else:
-				# ask about split
 				self.player_turn()
 				if not self.player_hand.get_over_21_status():
 					self.dealer_turn()
 				else:
 					self.dealer_hand.cards[first_card].flip_face_up()
 
-				self.update_wager()
+				self.resolve_wager()
 				self.display_state_of_game()
 				print('\nYou finished with a score of', self.player_hand.sum_of_cards)
 				print('The dealer finished with a score of',self.dealer_hand.sum_of_cards)
 				self.display_final_outcome()
 
-			response = self.get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
+			response = get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
 
-			if response == 'n':
+			if self.wager.get_current_value_owned() == 0:
+				print('You ran out of money. Goodbye.')
+			elif response == 'n':
 				print('Thanks for playing. Goodbye.')
 				break
 
@@ -84,11 +83,13 @@ class Game:
 			self.dealer_hand.add_card(self.deck.deal_card())
 
 	def player_turn(self):
-		turn_number = 1
 		again = True
 		while again and not self.player_hand.get_over_21_status():
 			self.suggest_recommendation()
-			choice = self.get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
+			if self.wager.get_current_wager() > self.wager.get_current_value_owned():  # If the user does not have enough funds. Don't allow him or her to double down
+				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
+			else:
+				choice = get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
 			if choice == 'h':
 				self.player_hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
 				self.display_state_of_game()
@@ -100,10 +101,6 @@ class Game:
 				break
 			elif choice == 's':
 				break
-			elif choice == 'y':  # indicates the user has two equal cards and wants to split
-				self.split_hand()
-				break
-			turn_number += 1
 
 	def dealer_turn(self):
 		self.dealer_hand.cards[first_card].flip_face_up()
@@ -118,18 +115,7 @@ class Game:
 				break
 			self.display_state_of_game()
 
-	#TODO move to a folder called "common"
-	def get_valid_input(self, prompt, possible_input, error_message):
-		valid = False
-		while not valid:
-			choice = input(prompt)
-			if choice.lower() in possible_input:
-				valid = True
-			else:
-				print(error_message)
-		return choice.lower()
-
-
+	# take hand param
 	def display_final_outcome(self):
 		if self.player_hand.get_blackjack_status():
 			print('Congratualtions! You got Blackjack. You WIN!')
@@ -146,7 +132,8 @@ class Game:
 		else:
 			print('\nTie! The game results in a PUSH.')
 
-	def update_wager(self):
+	# take hand param
+	def resolve_wager(self):
 		if self.player_hand.get_blackjack_status():
 			self.wager.collect_winnings(bßlackjack=True)
 		elif self.player_hand.get_over_21_status():  # player lost
@@ -167,13 +154,13 @@ class Game:
 			return False
 
 	def display_state_of_game(self):
-		os.system('clear')  # only for mac and linux
+		clear_window()
 		self.dealer_hand.display_hand()
 		self.player_hand.display_hand()
 		self.wager.display_wager()
 
 	def display_empty_game(self):
-		os.system('clear')  # only for mac and linux
+		clear_window()
 		self.dealer_hand.display_empty_hand()  # dealer side
 		self.player_hand.display_empty_hand()  # player side
 		self.wager.display_wager()
@@ -214,13 +201,4 @@ class Game:
 		else:
 			return False
 
-	def split_hand(self):
-		""" Treat a split like the player has two hands
-		"""
-		self.wager.double_wager() # need to add to the wager too
-		self.player_hand2 = Hand()
-		self.player_hand2.add_card(self.player_hand.remove_top_card())  # remove card from hand 1 and give to hand 2	
-		
-		# deal a card to each hand
-		self.player_hand.add_card(self.deck.deal_card())
-		self.player_hand2.add_card(self.deck.deal_card())
+

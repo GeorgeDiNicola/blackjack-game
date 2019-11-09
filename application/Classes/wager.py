@@ -32,7 +32,6 @@ class Wager:
 		self.outstanding_bet = 0
 
 	def double_wager(self):
-		# double outstanding bet
 		self.value_owned -= self.outstanding_bet
 		self.outstanding_bet = self.outstanding_bet * 2
 
@@ -53,7 +52,7 @@ class Wager:
 				else:
 					valid = True
 			else:
-				print('Please chood a valid bet amount. Type in withOUT the dollar sign!')
+				print('Please chood a valid bet amount. Type in without the dollar sign!')
 		return int(wager_choice)  #TODO might not be the best method
 
 	def display_wager(self):
