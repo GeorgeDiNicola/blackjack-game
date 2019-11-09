@@ -1,10 +1,15 @@
-from Deck import Deck
-from Card import Card
-from Hand import Hand
-from Wager import Wager
-from strategyTables import hard_totals, soft_totals, pair_splitting
 import os
 import time
+import sys
+
+#sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../')
+
+from Classes.deck import Deck
+from Classes.card import Card
+from Classes.hand import Hand
+from Classes.wager import Wager
+from strategyTables import hard_totals, soft_totals, pair_splitting
+
 
 # The main controller
 
