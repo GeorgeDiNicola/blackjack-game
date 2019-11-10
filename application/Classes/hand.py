@@ -8,8 +8,10 @@ class Hand:
 		self.sum_of_cards = 0
 		self.ace_count = 0
 		self.isDealer = isDealer
-		self.is_card_sum_over_21 = False
+		self.card_sum_over_21 = False
 		self.blackjack = False
+		self.is_split = False
+		self.wager = 0
 
 	# Mutators
 	def add_card(self, card):
@@ -44,13 +46,16 @@ class Hand:
 
 	def _update_over_21_status(self):
 		if self.sum_of_cards > 21:
-			self.is_card_sum_over_21 = True
+			self.card_sum_over_21 = True
 
 	def _detect_blackjack(self):
 		if (self.cards[0].value == 10 and self.cards[1].rank == 'A'):
 			self.blackjack = True
 		elif (self.cards[1].value == 10 and self.cards[0].rank == 'A'):
 			self.blackjack = True
+
+	def indicate_hand_split(self):
+		self.is_split = True
 
 	# Accessors
 	def get_card_in_deck(self, location):
@@ -75,17 +80,17 @@ class Hand:
 		return self.cards[1].rank  # alter to only be dealer
 
 	def get_over_21_status(self):
-		return self.is_card_sum_over_21
+		return self.card_sum_over_21
 
 	def get_blackjack_status(self):
 		return self.blackjack
 
 	def display_hand(self):
-		lines = self.get_formatted_hand()
+		lines = self.format_hand()
 		for line in lines:
 			print(line)
 
-	def get_formatted_hand(self):
+	def format_hand(self):
 		lines = [''] * 10
 
 		for card in self.cards:
@@ -119,3 +124,20 @@ class Hand:
 		    lines[8] += '└─────────┘' + ''
 		for line in lines:
 			print(line)
+
+	def reset_wager(self):
+		self.wager = 0
+
+	def get_valid_wager(self, winnings):
+		allowable_bets = ['1', '5', '10', '15', '20']
+		valid = False
+		while not valid:
+			wager_choice = input("\nHow much would you like to wager?\n  $(1)  $(5)  $(10)  $(15)  $(20)\n")
+			if wager_choice in allowable_bets:
+				if winnings - int(wager_choice) < 0:
+					print('You do not have enough money. Please make a lower wager.')
+				else:
+					valid = True
+			else:
+				print('Please choose a valid bet amount. Type in without the dollar sign!')
+		self.wager = int(wager_choice)
