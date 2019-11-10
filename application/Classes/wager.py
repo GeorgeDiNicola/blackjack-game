@@ -52,7 +52,7 @@ class Wager:
 				else:
 					valid = True
 			else:
-				print('Please chood a valid bet amount. Type in without the dollar sign!')
+				print('Please choose a valid bet amount. Type in without the dollar sign!')
 		return int(wager_choice)  #TODO might not be the best method
 
 	def display_wager(self):

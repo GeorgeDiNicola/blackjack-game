@@ -49,13 +49,31 @@ class Game:
 			self.dealer_hand.cards[first_card].flip_face_down()  # flip first dealer card face down
 			self.display_state_of_game(self.player_hand)
 
+			time.sleep(3)
+
 			# test split here
+			self.split_hand()
+			self.play_split_hand()
+
+
+			time.sleep(10)
 
 			if self.check_for_any_blackjack():
 				self.resolve_wager(self.player_hand)
 				self.dealer_hand.cards[first_card].flip_face_up()
 				self.display_state_of_game(self.player_hand)
 				self.display_final_outcome()
+			elif self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+				choice = get_valid_input('\nWould you like to split? ', ['y','n'], 'Not a valid response')
+				if choice == 'y':
+					self.split_hand()
+					self.play_split_hand()
+				else:
+					self.player_turn()
+					if not self.player_hand.get_over_21_status():
+						self.dealer_turn()
+					else:
+						self.dealer_hand.cards[first_card].flip_face_up()
 			else:
 				self.player_turn(self.player_hand)
 				if not self.player_hand.get_over_21_status():
@@ -87,6 +105,7 @@ class Game:
 	def player_turn(self, hand):
 		again = True
 		while again and not hand.get_over_21_status():
+			self.display_state_of_game(hand)
 			self.suggest_recommendation(hand)
 			if self.wager.get_current_wager() > self.wager.get_current_value_owned():  # If the user does not have enough funds. Don't allow him or her to double down
 				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
@@ -117,7 +136,6 @@ class Game:
 				break
 			self.display_state_of_game(player_hand)
 
-	# take hand param
 	def display_final_outcome(self):
 		if self.player_hand.get_blackjack_status():
 			print('Congratualtions! You got Blackjack. You WIN!')
@@ -134,7 +152,6 @@ class Game:
 		else:
 			print('\nTie! The game results in a PUSH.')
 
-	# take hand param
 	def resolve_wager(self, hand):
 		if hand.get_blackjack_status():
 			self.wager.collect_winnings(blackjack=True)
@@ -174,9 +191,9 @@ class Game:
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] != Ace: # always check the dealer's face-up card
 			strategy = self.make_hard_total_recommendation(hand)
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] == Ace:
-			strategy = self.make_soft_total_recommendation(hand, 0)
-		elif hand.cards[first_card].rank == Ace and hand.cards[second_card] != Ace:
 			strategy = self.make_soft_total_recommendation(hand, 1)
+		elif hand.cards[first_card].rank == Ace and hand.cards[second_card] != Ace:
+			strategy = self.make_soft_total_recommendation(hand, 0)
 		print('\nThe recommended strategy is to:', strategy)
 
 	def make_pair_recommendation(self, hand):
@@ -204,3 +221,22 @@ class Game:
 			return False
 
 
+	def split_hand(self):
+		""" Treat a split like the player has two hands
+		"""
+		#self.wager.double_wager() # need to add to the wager too
+		self.wager.double_wager()
+		self.player_second_hand = Hand()
+		self.player_second_hand.add_card(self.player_hand.remove_last_card())  # remove card from hand 1 and give to hand 2	
+		
+		# deal a card to each hand
+		self.player_hand.add_card(self.deck.deal_card())
+		self.player_second_hand.add_card(self.deck.deal_card())
+
+
+	def play_split_hand(self):
+		self.player_turn(self.player_hand)
+		self.player_turn(self.player_second_hand)
+
+	def resolve_wager_on_split_hand(self):
+		pass
