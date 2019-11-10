@@ -49,11 +49,10 @@ class Game:
 			self.player_hand.get_valid_wager(self.winnings)
 			self.winnings -= self.player_hand.wager  # remove wager from current winnings
 
-			clear_window()
-
 			self.deal_cards()
 
 			self.dealer_hand.cards[first_card].flip_face_down()  # flip first dealer card face down
+			clear_window()
 			self.display_state_of_game(self.player_hand)
 
 
@@ -90,6 +89,36 @@ class Game:
 			self.player_hand.add_card(self.deck.deal_card())
 			self.dealer_hand.add_card(self.deck.deal_card())
 
+	def card_rank_equal(self, card1, card2):
+		if card1.rank == card2.rank:
+			return True
+		else:
+			return False
+
+	def player_turn(self, hand):
+		again = True
+		while again and not hand.get_over_21_status():
+			self.display_state_of_game(hand)
+			self.suggest_recommendation(hand)
+			if hand.wager > self.winnings:  # If the user does not have enough funds. Don't allow him or her to double down
+				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
+			else:
+				choice = get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
+			if choice == 'h':
+				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
+				self.display_state_of_game(hand)
+			elif choice == 'd':
+				# double wager
+				self.winnings -= hand.wager
+				hand.wager += hand.wager
+
+				self.display_state_of_game(hand)
+				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
+				self.display_state_of_game(hand)
+				break
+			elif choice == 's':
+				break
+
 	def dealer_turn(self, player_hand):
 		self.dealer_hand.cards[first_card].flip_face_up()
 		self.display_state_of_game(player_hand)
@@ -103,19 +132,16 @@ class Game:
 				break
 			self.display_state_of_game(player_hand)
 
-	def display_final_outcome(self):
-		if self.player_hand.get_blackjack_status():
-			print('Congratualtions! You got Blackjack. You WIN!')
-		elif self.player_hand.get_over_21_status():
-			print('\nYou went over 21. You LOSE!')
-		elif self.dealer_hand.get_over_21_status():
-			print('\nThe dealer went over 21. You WIN!')
-		elif self.dealer_hand.get_sum_of_cards() < self.player_hand.get_sum_of_cards():
-			print('\nYou WIN!')
-		elif self.player_hand.get_sum_of_cards() < self.dealer_hand.get_sum_of_cards():
-			print('\nYou LOSE!')
+	def display_state_of_game(self, hand=[], empty= False):
+		clear_window()
+		if empty:
+			self.dealer_hand.display_empty_hand()  # dealer side
+			self.player_hand.display_empty_hand()  # default to player since the hand will always exist	
+			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, 0))  # display wager
 		else:
-			print('\nTie! The game results in a PUSH.')
+			self.dealer_hand.display_hand()
+			hand.display_hand()
+			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, hand.wager))  # display wager	
 
 	def suggest_recommendation(self, hand):
 		Ace = 'A'
@@ -150,28 +176,20 @@ class Game:
 		strategy = soft_totals.get((hand.cards[non_ace_index].rank, self.dealer_hand.get_visible_card_rank()))
 		return strategy
 
-	def card_rank_equal(self, card1, card2):
-		if card1.rank == card2.rank:
-			return True
+	def display_final_outcome(self):
+		if self.player_hand.get_blackjack_status():
+			print('Congratualtions! You got Blackjack. You WIN!')
+		elif self.player_hand.get_over_21_status():
+			print('\nYou went over 21. You LOSE!')
+		elif self.dealer_hand.get_over_21_status():
+			print('\nThe dealer went over 21. You WIN!')
+		elif self.dealer_hand.get_sum_of_cards() < self.player_hand.get_sum_of_cards():
+			print('\nYou WIN!')
+		elif self.player_hand.get_sum_of_cards() < self.dealer_hand.get_sum_of_cards():
+			print('\nYou LOSE!')
 		else:
-			return False
+			print('\nTie! The game results in a PUSH.')
 
-
-
-
-	# change display wager to take current value of wager and current value of winnings
-	def display_state_of_game(self, hand=[], empty= False):
-		clear_window()
-		if empty:
-			self.dealer_hand.display_empty_hand()  # dealer side
-			self.player_hand.display_empty_hand()  # default to player since the hand will always exist	
-			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, 0))  # display wager
-		else:
-			self.dealer_hand.display_hand()
-			hand.display_hand()
-			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, hand.wager))  # display wager
-
-	# have this just alter variables
 	def resolve_wager(self, hand):
 		if hand.get_blackjack_status():
 			self.winnings += hand.wager * 3
@@ -189,27 +207,3 @@ class Game:
 		else:  # push
 			self.winnings += hand.wager
 			hand.reset_wager()
-
-	def player_turn(self, hand):
-		again = True
-		while again and not hand.get_over_21_status():
-			self.display_state_of_game(hand)
-			self.suggest_recommendation(hand)
-			if hand.wager > self.winnings:  # If the user does not have enough funds. Don't allow him or her to double down
-				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
-			else:
-				choice = get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
-			if choice == 'h':
-				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
-				self.display_state_of_game(hand)
-			elif choice == 'd':
-				# double wager
-				self.winnings -= hand.wager
-				hand.wager += hand.wager
-
-				self.display_state_of_game(hand)
-				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
-				self.display_state_of_game(hand)
-				break
-			elif choice == 's':
-				break

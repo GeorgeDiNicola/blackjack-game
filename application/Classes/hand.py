@@ -13,7 +13,6 @@ class Hand:
 		self.is_split = False
 		self.wager = 0
 
-	# Mutators
 	def add_card(self, card):
 		self.cards.append(card)
 		self._update_ace_count(card)
@@ -54,10 +53,6 @@ class Hand:
 		elif (self.cards[1].value == 10 and self.cards[0].rank == 'A'):
 			self.blackjack = True
 
-	def indicate_hand_split(self):
-		self.is_split = True
-
-	# Accessors
 	def get_card_in_deck(self, location):
 		try:
 			card = self.cards[location]
@@ -101,7 +96,10 @@ class Hand:
 		        new = card.get_formatted_face_up_card()
 		        lines = [i + j for i, j in zip(lines, new)]
 		    
-		#lines[4] += ' <----- ' + player
+		if self.isDealer:
+			lines[4] += ' <----- Dealer'
+		else:
+			lines[4] += ' <----- Player'
 		if self.cards[0].hidden:
 		    lines[9] += '    Sum of cards: -'
 		else:

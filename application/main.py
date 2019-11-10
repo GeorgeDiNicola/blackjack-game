@@ -11,5 +11,4 @@ def main():
 
 	game.play()
 
-
 main()
