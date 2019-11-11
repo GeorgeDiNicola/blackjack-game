@@ -56,7 +56,8 @@ class Game:
 
 
 			choice = 'n'
-			if self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+			# player must have enough money to wager on a split and cards in equal rank
+			if self.player_hand.wager > self.winnings and self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
 				choice = get_valid_input('\nWould you like to split? ', ['y','n'], 'Not a valid response')
 				if choice == 'y':
 					self.split_hand()
