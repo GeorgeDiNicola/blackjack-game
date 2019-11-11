@@ -57,8 +57,8 @@ class Game:
 
 			choice = 'n'
 			# player must have enough money to wager on a split and cards in equal rank
-			if self.player_hand.wager > self.winnings and self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
-				choice = get_valid_input('\nWould you like to split? ', ['y','n'], 'Not a valid response')
+			if self.winnings > self.player_hand.wager and self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+				choice = get_valid_input('\nWould you like to split? (Y)es or (N)o', ['y','n'], 'Not a valid response')
 				if choice == 'y':
 					self.split_hand()
 					self.play_split_hand()
@@ -77,7 +77,11 @@ class Game:
 
 			print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
 			print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
-			self.display_final_outcome()
+			if self.player_hand.is_split:
+				self.display_final_outcome(self.player_hand)
+				self.display_final_outcome(self.player_second_hand)
+			else:
+				self.display_final_outcome(self.player_hand)
 
 			response = get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
 
@@ -183,16 +187,16 @@ class Game:
 		strategy = soft_totals.get((hand.cards[non_ace_index].rank, self.dealer_hand.get_visible_card_rank()))
 		return strategy
 
-	def display_final_outcome(self):
-		if self.player_hand.has_blackjack():
+	def display_final_outcome(self, hand):
+		if hand.has_blackjack():
 			print('Congratualtions! You got Blackjack. You WIN!')
-		elif self.player_hand.get_over_21_status():
+		elif hand.get_over_21_status():
 			print('\nYou went over 21. You LOSE!')
 		elif self.dealer_hand.get_over_21_status():
 			print('\nThe dealer went over 21. You WIN!')
-		elif self.dealer_hand.get_sum_of_cards() < self.player_hand.get_sum_of_cards():
+		elif self.dealer_hand.get_sum_of_cards() < hand.get_sum_of_cards():
 			print('\nYou WIN!')
-		elif self.player_hand.get_sum_of_cards() < self.dealer_hand.get_sum_of_cards():
+		elif hand.get_sum_of_cards() < self.dealer_hand.get_sum_of_cards():
 			print('\nYou LOSE!')
 		else:
 			print('\nTie! The game results in a PUSH.')
