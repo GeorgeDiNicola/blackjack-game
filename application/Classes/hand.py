@@ -70,7 +70,7 @@ class Hand:
 			return False
 
 	def prompt_for_wager(self, winnings):
-		prompt = "\nHow much would you like to wager?\n  $(1)  $(5)  $(10)  $(15)  $(20)\n"
+		prompt = "\nHow much would you like to wager?\n  $(1)  $(5)  $(10)  $(15)  $(20)\n\nWager Amount: "
 		allowable_bets = ['1', '5', '10', '15', '20']
 		error_message = 'Please choose a valid bet amount. Type in without the dollar sign!'
 		input_invalid = True

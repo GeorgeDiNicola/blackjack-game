@@ -66,10 +66,15 @@ class Game:
 
 			if self.player_hand.is_split:
 				print('\nYour first hand finished with a score of', self.player_hand.get_sum_of_cards())
-				print('\nYou second hand finished with a score of', self.player_second_hand.get_sum_of_cards())
+				print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
+				self.display_final_outcome(self.player_hand)
+				
+				print('You second hand finished with a score of', self.player_second_hand.get_sum_of_cards())
+				print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
+				self.display_final_outcome(self.player_second_hand)
 			else:
 				print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
-			print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
+				print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
 			
 			if self.player_hand.is_split:  # display outcome for both hands the player has
 				self.display_final_outcome(self.player_hand)
@@ -153,7 +158,7 @@ class Game:
 
 	def suggest_recommendation(self, hand):
 		Ace = 'A'
-		if self.card_rank_equal(hand.cards[first_card], hand.cards[second_card]):
+		if self.card_rank_equal(hand.cards[first_card], hand.cards[second_card]) and len(hand.cards) < 3:
 			strategy = self.make_pair_recommendation(hand)
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] != Ace: # always check the dealer's face-up card
 			strategy = self.make_hard_total_recommendation(hand)
@@ -161,6 +166,8 @@ class Game:
 			strategy = self.make_soft_total_recommendation(hand, 0)
 		elif hand.cards[first_card].rank == Ace and hand.cards[second_card] != Ace:
 			strategy = self.make_soft_total_recommendation(hand, 1)
+		else:
+			strategy = self.make_hard_total_recommendation(hand)
 		print('\nThe recommended strategy is to:', strategy)
 
 	def make_pair_recommendation(self, hand):
@@ -186,7 +193,7 @@ class Game:
 
 	def display_final_outcome(self, hand):
 		if hand.has_blackjack():
-			print('Congratualtions! You got Blackjack. You WIN!')
+			print('\nCongratualtions! You got Blackjack. You WIN!')
 		elif hand.get_over_21_status():
 			print('\nYou went over 21. You LOSE!')
 		elif self.dealer_hand.get_over_21_status():
