@@ -1,23 +1,10 @@
-'''
-	Notes:
-		* need to make sure recommendations doesn't say to split twice
-		* REMOVE ALL ACCESSOR FUNCTIONS!
-
-	Make winnings global, and give the wager functions to hand
-
-'''
-import os
-import time
-import sys
-
-#sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../')
+import os, time, sys
 
 from Classes.deck import Deck
 from Classes.card import Card
 from Classes.hand import Hand
 from strategyTables import hard_totals, soft_totals, pair_splitting
 from utils import *
-
 
 # The main controller
 
@@ -45,55 +32,62 @@ class Game:
 
 			self.display_state_of_game(empty=True)
 
-			self.player_hand.get_valid_wager(self.winnings)
+			self.player_hand.prompt_for_wager(self.winnings)
 			self.winnings -= self.player_hand.wager  # remove wager from current winnings
 
 			self.deal_cards()
 
 			self.dealer_hand.cards[first_card].flip_face_down()  # flip first dealer card face down
+			
 			clear_window()
 			self.display_state_of_game(self.player_hand)
 
-
-			choice = 'n'
-			# player must have enough money to wager on a split and cards in equal rank
+			choice = 'n'  # holder value for choice variable
+			
+			# player must have enough money to wager and cards in equal rank to split his or her hand
 			if self.winnings > self.player_hand.wager and self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
-				choice = get_valid_input('\nWould you like to split? (Y)es or (N)o', ['y','n'], 'Not a valid response')
+				choice = get_valid_input('\nWould you like to split? (Y)es or (N)o?: ', ['y','n'], 'Not a valid response')
 				if choice == 'y':
 					self.split_hand()
 					self.play_split_hand()
 
-			if choice != 'y':
+			if choice != 'y':  # player did not choose to split or did not have ability to
 				self.player_turn(self.player_hand)
-				if not self.player_hand.get_over_21_status():
+				
+				# dealer only needs to play if player has not gone over 21 and does not have blackjack
+				if not (self.player_hand.get_over_21_status() or self.player_hand.has_blackjack == False):
 					self.dealer_turn(self.player_hand)
-					self.resolve_wager(self.player_hand)
-					self.display_state_of_game(self.player_hand)
-				else:  # no need for dealer to play
+				else:
 					self.dealer_hand.cards[first_card].flip_face_up()
-					self.resolve_wager(self.player_hand)
-					self.display_state_of_game(self.player_hand)
+				
+				self.resolve_wager(self.player_hand)
+				self.display_state_of_game(self.player_hand)
 
 
-			print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
-			print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
 			if self.player_hand.is_split:
+				print('\nYour first hand finished with a score of', self.player_hand.get_sum_of_cards())
+				print('\nYou second hand finished with a score of', self.player_second_hand.get_sum_of_cards())
+			else:
+				print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
+			print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
+			
+			if self.player_hand.is_split:  # display outcome for both hands the player has
 				self.display_final_outcome(self.player_hand)
 				self.display_final_outcome(self.player_second_hand)
 			else:
 				self.display_final_outcome(self.player_hand)
 
-			response = get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
 
+			response = get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
+			
 			if self.winnings == 0:
-				print('You ran out of money. Goodbye.')
+				print('Sorry, you ran out of money. Goodbye.')
 			elif response == 'n':
 				print('Thanks for playing. Goodbye.')
 				break
 
-	# Controllers
 	def deal_cards(self):
-		# deal cards back and forth
+		# deal cards back and forth like a real game
 		for i in range(2):
 			self.player_hand.add_card(self.deck.deal_card())
 			self.dealer_hand.add_card(self.deck.deal_card())
@@ -110,6 +104,7 @@ class Game:
 			clear_window()
 			if hand.has_blackjack():  # stop turn of player has blackjack
 				break
+			
 			self.display_state_of_game(hand)
 			self.suggest_recommendation(hand)
 
@@ -118,6 +113,7 @@ class Game:
 			else:
 				choice = get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
 			
+			# evaluate the choice given by the player
 			if choice == 'h':
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
 				self.display_state_of_game(hand)
@@ -125,12 +121,12 @@ class Game:
 				# double wager
 				self.winnings -= hand.wager
 				hand.wager += hand.wager
-				self.display_state_of_game(hand)
+				
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
 				self.display_state_of_game(hand)
-				break
+				again = False  # can only hit once after doubling down
 			elif choice == 's':
-				break
+				again = False
 
 	def dealer_turn(self, player_hand):
 		self.dealer_hand.cards[first_card].flip_face_up()
@@ -140,8 +136,9 @@ class Game:
 			if self.dealer_hand.get_sum_of_cards() < 17:  # dealer must hit when under 17
 				self.dealer_hand.add_card(self.deck.deal_card())
 			else:
-				break
+				again = False
 			self.display_state_of_game(player_hand)
+		self.display_state_of_game(player_hand)
 
 	def display_state_of_game(self, hand=[], empty= False):
 		clear_window()
@@ -219,19 +216,26 @@ class Game:
 			self.winnings += hand.wager
 			hand.reset_wager()
 
+	# Methods used for gameplay when user splits his or her hand
 	def play_split_hand(self):
 		self.player_turn(self.player_hand)
 		self.player_turn(self.player_second_hand)
+		
 		self.dealer_turn(self.player_second_hand)
+		
 		self.resolve_wager(self.player_hand)
 		self.resolve_wager(self.player_second_hand)
+		
 		self.display_state_of_game(self.player_hand)
 		self.display_state_of_game(self.player_second_hand)
 
 	def split_hand(self):
-		self.player_hand.indicate_hand_is_split()
+		""" Create a second hand so the user can play using both hands
+		"""
 		self.player_second_hand = Hand()
 		self.player_second_hand.add_card(self.player_hand.remove_last_card())  # remove card from hand 1 and give to hand 2	
+		
+		self.player_hand.indicate_hand_is_split()
 		self.player_second_hand.indicate_hand_is_split()
 
 		# deal a card to each hand
@@ -241,4 +245,3 @@ class Game:
 		# double wager
 		self.winnings -= self.player_hand.wager
 		self.player_second_hand.wager += self.player_hand.wager
-
