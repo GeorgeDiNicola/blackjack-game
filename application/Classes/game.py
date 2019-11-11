@@ -3,10 +3,9 @@
 		* need to make sure recommendations doesn't say to split twice
 		* REMOVE ALL ACCESSOR FUNCTIONS!
 
-Make winnings global, and give the wager functions to hand
+	Make winnings global, and give the wager functions to hand
 
 '''
-
 import os
 import time
 import sys
@@ -56,23 +55,28 @@ class Game:
 			self.display_state_of_game(self.player_hand)
 
 
-			if self.player_hand.get_blackjack_status():
-				self.resolve_wager(self.player_hand)
-				self.dealer_hand.cards[first_card].flip_face_up()
-				self.display_state_of_game(self.player_hand)
-				self.display_final_outcome()
-			else:
+			choice = 'n'
+			if self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+				choice = get_valid_input('\nWould you like to split? ', ['y','n'], 'Not a valid response')
+				if choice == 'y':
+					self.split_hand()
+					self.play_split_hand()
+
+			if choice != 'y':
 				self.player_turn(self.player_hand)
 				if not self.player_hand.get_over_21_status():
 					self.dealer_turn(self.player_hand)
-				else:
+					self.resolve_wager(self.player_hand)
+					self.display_state_of_game(self.player_hand)
+				else:  # no need for dealer to play
 					self.dealer_hand.cards[first_card].flip_face_up()
+					self.resolve_wager(self.player_hand)
+					self.display_state_of_game(self.player_hand)
 
-				self.resolve_wager(self.player_hand)
-				self.display_state_of_game(self.player_hand)
-				print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
-				print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
-				self.display_final_outcome()
+
+			print('\nYou finished with a score of', self.player_hand.get_sum_of_cards())
+			print('The dealer finished with a score of',self.dealer_hand.get_sum_of_cards())
+			self.display_final_outcome()
 
 			response = get_valid_input('\nWould you like to play again? (Y)es or (N)o: ', ['y','n'], 'Not a valid response')
 
@@ -98,12 +102,17 @@ class Game:
 	def player_turn(self, hand):
 		again = True
 		while again and not hand.get_over_21_status():
+			clear_window()
+			if hand.has_blackjack():  # stop turn of player has blackjack
+				break
 			self.display_state_of_game(hand)
 			self.suggest_recommendation(hand)
+
 			if hand.wager > self.winnings:  # If the user does not have enough funds. Don't allow him or her to double down
 				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
 			else:
 				choice = get_valid_input('\n(H)it, (S)tand, or (D)ouble Down?: ', ['h', 's', 'd'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
+			
 			if choice == 'h':
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
 				self.display_state_of_game(hand)
@@ -111,7 +120,6 @@ class Game:
 				# double wager
 				self.winnings -= hand.wager
 				hand.wager += hand.wager
-
 				self.display_state_of_game(hand)
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
 				self.display_state_of_game(hand)
@@ -125,8 +133,6 @@ class Game:
 		again = True
 		while again:
 			if self.dealer_hand.get_sum_of_cards() < 17:  # dealer must hit when under 17
-				self.dealer_hand.add_card(self.deck.deal_card())
-			elif self.dealer_hand.get_sum_of_cards() < player_hand.get_sum_of_cards():  # if over 16 and losing to player
 				self.dealer_hand.add_card(self.deck.deal_card())
 			else:
 				break
@@ -157,7 +163,7 @@ class Game:
 
 	def make_pair_recommendation(self, hand):
 		if hand.is_split:
-			strategy = hard_totals.get((hand.cards[first_card].rank, self.dealer_hand.get_visible_card_rank()))
+			strategy = self.make_hard_total_recommendation(hand)
 		else:
 			strategy = pair_splitting.get((hand.cards[first_card].rank, self.dealer_hand.get_visible_card_rank()))
 		if strategy == None:
@@ -177,7 +183,7 @@ class Game:
 		return strategy
 
 	def display_final_outcome(self):
-		if self.player_hand.get_blackjack_status():
+		if self.player_hand.has_blackjack():
 			print('Congratualtions! You got Blackjack. You WIN!')
 		elif self.player_hand.get_over_21_status():
 			print('\nYou went over 21. You LOSE!')
@@ -191,7 +197,7 @@ class Game:
 			print('\nTie! The game results in a PUSH.')
 
 	def resolve_wager(self, hand):
-		if hand.get_blackjack_status():
+		if hand.has_blackjack():
 			self.winnings += hand.wager * 3
 			hand.reset_wager()
 		elif hand.get_over_21_status():  # player lost
@@ -207,3 +213,27 @@ class Game:
 		else:  # push
 			self.winnings += hand.wager
 			hand.reset_wager()
+
+	def play_split_hand(self):
+		self.player_turn(self.player_hand)
+		self.player_turn(self.player_second_hand)
+		self.dealer_turn(self.player_second_hand)
+		self.resolve_wager(self.player_hand)
+		self.resolve_wager(self.player_second_hand)
+		self.display_state_of_game(self.player_hand)
+		self.display_state_of_game(self.player_second_hand)
+
+	def split_hand(self):
+		self.player_hand.indicate_hand_is_split()
+		self.player_second_hand = Hand()
+		self.player_second_hand.add_card(self.player_hand.remove_last_card())  # remove card from hand 1 and give to hand 2	
+		self.player_second_hand.indicate_hand_is_split()
+
+		# deal a card to each hand
+		self.player_hand.add_card(self.deck.deal_card())
+		self.player_second_hand.add_card(self.deck.deal_card())
+
+		# double wager
+		self.winnings -= self.player_hand.wager
+		self.player_second_hand.wager += self.player_hand.wager
+
