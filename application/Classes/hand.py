@@ -8,8 +8,6 @@ class Hand:
 		self.sum_of_cards = 0
 		self.ace_count = 0
 		self.isDealer = isDealer
-		self.card_sum_over_21 = False
-		self.blackjack = False
 		self.is_split = False
 		self.wager = 0
 
@@ -18,9 +16,7 @@ class Hand:
 		self._update_ace_count(card)
 		self._update_sum_of_cards(card)
 		self._adjust_sum_for_aces()
-		self._update_over_21_status()
-		if len(self.cards) == 2:  # blackjack is only possible with 2 cards in hand
-			self._detect_blackjack()
+		#self._update_over_21_status()
 
 	def remove_last_card(self):
 		try:
@@ -43,23 +39,13 @@ class Hand:
 			self.sum_of_cards -= 10  # make the ace a 1
 			self.ace_count -= 1  # remove used aces
 
-	def _update_over_21_status(self):
-		if self.sum_of_cards > 21:
-			self.card_sum_over_21 = True
-
-	def _detect_blackjack(self):
+	def has_blackjack(self):
 		if (self.cards[0].value == 10 and self.cards[1].rank == 'A'):
-			self.blackjack = True
+			return True
 		elif (self.cards[1].value == 10 and self.cards[0].rank == 'A'):
-			self.blackjack = True
-
-	def get_card_in_deck(self, location):
-		try:
-			card = self.cards[location]
-		except:
-			print('There are not any cards in that location of the deck')
+			return True
 		else:
-			return card
+			return False
 
 	def get_sum_of_cards(self):
 		return self.sum_of_cards
@@ -75,10 +61,10 @@ class Hand:
 		return self.cards[1].rank  # alter to only be dealer
 
 	def get_over_21_status(self):
-		return self.card_sum_over_21
-
-	def get_blackjack_status(self):
-		return self.blackjack
+		if self.sum_of_cards > 21:
+			return True
+		else:
+			return False
 
 	def display_hand(self):
 		lines = self.format_hand()
@@ -139,3 +125,6 @@ class Hand:
 			else:
 				print('Please choose a valid bet amount. Type in without the dollar sign!')
 		self.wager = int(wager_choice)
+
+	def indicate_hand_is_split(self):
+		self.is_split = True
