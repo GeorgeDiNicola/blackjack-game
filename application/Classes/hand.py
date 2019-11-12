@@ -56,6 +56,12 @@ class Hand:
 		else:
 			return False
 
+	def card_rank_equal(self, card1, card2):
+		if card1.rank == card2.rank:
+			return True
+		else:
+			return False
+
 	def get_sum_of_cards(self):
 		return self.sum_of_cards
 

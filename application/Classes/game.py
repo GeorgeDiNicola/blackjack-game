@@ -45,7 +45,7 @@ class Game:
 			choice = 'n'  # holder value for choice variable
 			
 			# player must have enough money to wager and cards in equal rank to split his or her hand
-			if self.winnings > self.player_hand.wager and self.card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+			if self.winnings > self.player_hand.wager and card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
 				choice = get_valid_input('\nWould you like to split? (Y)es or (N)o?: ', ['y','n'], 'Not a valid response')
 				if choice == 'y':
 					self.split_hand()
@@ -96,12 +96,6 @@ class Game:
 		for i in range(2):
 			self.player_hand.add_card(self.deck.deal_card())
 			self.dealer_hand.add_card(self.deck.deal_card())
-
-	def card_rank_equal(self, card1, card2):
-		if card1.rank == card2.rank:
-			return True
-		else:
-			return False
 
 	def player_turn(self, hand):
 		again = True
@@ -158,7 +152,7 @@ class Game:
 
 	def suggest_recommendation(self, hand):
 		Ace = 'A'
-		if self.card_rank_equal(hand.cards[first_card], hand.cards[second_card]) and len(hand.cards) < 3:
+		if card_rank_equal(hand.cards[first_card], hand.cards[second_card]) and len(hand.cards) < 3:
 			strategy = self.make_pair_recommendation(hand)
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] != Ace: # always check the dealer's face-up card
 			strategy = self.make_hard_total_recommendation(hand)
