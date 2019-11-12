@@ -1,5 +1,4 @@
 import random
-
 from Classes.card import Card
 
 suits = ['C', 'S', 'H', 'D']
