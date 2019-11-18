@@ -89,7 +89,6 @@ class Hand:
 		self.wager = int(wager_choice)
 
 
-	# User interface methods for the hand
 	def display_hand(self):
 		lines = self.format_hand()
 		for line in lines:
@@ -104,27 +103,14 @@ class Hand:
 		    else:
 		        new = card.get_formatted_face_up_card()
 		        lines = [i + j for i, j in zip(lines, new)]  # append lists item-wise
+		
 		if self.isDealer:
 			lines[4] += ' <----- Dealer'
 		else:
 			lines[4] += ' <----- Player'
+		
 		if self.cards[first_card].facedown:
 		    lines[9] += '    Sum of cards: -'
 		else:
 		    lines[9] += '    Sum of cards: ' + str(self.sum_of_cards)
 		return lines
-
-	def display_empty_hand(self):
-		lines = [''] * max_card_height
-		for i in range(2):  # display 2 cards
-		    lines[0] += '┌─────────┐'
-		    lines[1] += '│         │'
-		    lines[2] += '│         │'
-		    lines[3] += '│         │'
-		    lines[4] += '│         │'
-		    lines[5] += '│         │'
-		    lines[6] += '│         │' 
-		    lines[7] += '│         │'
-		    lines[8] += '└─────────┘'
-		for line in lines:
-			print(line)

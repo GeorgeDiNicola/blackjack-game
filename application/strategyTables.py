@@ -144,10 +144,8 @@ hard_totals = {
 	(17,'A'): 'Stand'
 }
 
-
 # first item represents non-ace card, second represents dealer upcard
 # hit on anything not in the dictionary
-
 soft_totals = {
 	
 	(2,2): 'Hit', 
@@ -266,7 +264,6 @@ soft_totals = {
 
 # first item represents user total, second represents dealer upcard
 # hit on anything not in the dictionary
-
 pair_splitting = {
 	
 	(2,2): 'Hit', 

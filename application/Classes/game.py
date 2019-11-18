@@ -3,14 +3,12 @@ import os, time, sys
 from Classes.deck import Deck
 from Classes.card import Card
 from Classes.hand import Hand
-from strategyTables import hard_totals, soft_totals, pair_splitting
 from utils import *
-
-# The main controller
 
 # Global Variables
 first_card = 0
 second_card = 1
+max_card_height = 10
 
 class Game:
 
@@ -30,7 +28,7 @@ class Game:
 			self.player_hand = Hand()
 			self.dealer_hand = Hand(isDealer = True)
 
-			self.display_state_of_game(empty=True)
+			self.display_empty_game()
 
 			self.player_hand.prompt_for_wager(self.winnings)
 			self.winnings -= self.player_hand.wager  # remove wager from current winnings
@@ -39,13 +37,12 @@ class Game:
 
 			self.dealer_hand.cards[first_card].flip_face_down()  # flip first dealer card face down
 			
-			clear_window()
-			self.display_state_of_game(self.player_hand)
+			self.display_state_of_game(self.dealer_hand, self.player_hand)
 
 			choice = 'n'  # holder value for choice variable
 			
 			# player must have enough money to wager and cards in equal rank to split his or her hand
-			if self.winnings > self.player_hand.wager and card_rank_equal(self.player_hand.cards[first_card], self.player_hand.cards[second_card]):
+			if (self.winnings > self.player_hand.wager) and (self.player_hand.cards[first_card] == self.player_hand.cards[second_card]):
 				choice = get_valid_input('\nWould you like to split? (Y)es or (N)o?: ', ['y','n'], 'Not a valid response')
 				if choice == 'y':
 					self.split_hand()
@@ -61,7 +58,8 @@ class Game:
 					self.dealer_hand.cards[first_card].flip_face_up()
 				
 				self.resolve_wager(self.player_hand)
-				self.display_state_of_game(self.player_hand)
+
+				self.display_state_of_game(self.dealer_hand, self.player_hand)
 
 
 			if self.player_hand.is_split:
@@ -100,12 +98,12 @@ class Game:
 	def player_turn(self, hand):
 		again = True
 		while again and not hand.get_over_21_status():
-			clear_window()
+			
 			if hand.has_blackjack():  # stop turn of player has blackjack
 				break
 			
-			self.display_state_of_game(hand)
-			self.suggest_recommendation(hand)
+			self.display_state_of_game(self.dealer_hand, hand)
+			self.recommend_strategy(hand)
 
 			if hand.wager > self.winnings:  # If the user does not have enough funds. Don't allow him or her to double down
 				choice = get_valid_input('\n(H)it or (S)tand?: ', ['h', 's'], 'Invalid choice. Please choose "H" to hit or "S" to stand')
@@ -115,75 +113,43 @@ class Game:
 			# evaluate the choice given by the player
 			if choice == 'h':
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
-				self.display_state_of_game(hand)
+				self.display_state_of_game(self.dealer_hand, hand)
 			elif choice == 'd':
 				# double wager
 				self.winnings -= hand.wager
 				hand.wager += hand.wager
 				
 				hand.add_card(self.deck.deal_card())  # hit deck and add card to hand
-				self.display_state_of_game(hand)
+				self.display_state_of_game(self.dealer_hand, hand)
 				again = False  # can only hit once after doubling down
 			elif choice == 's':
 				again = False
 
 	def dealer_turn(self, player_hand):
 		self.dealer_hand.cards[first_card].flip_face_up()
-		self.display_state_of_game(player_hand)
+		self.display_state_of_game(self.dealer_hand, player_hand)
 		again = True
 		while again:
 			if self.dealer_hand.get_sum_of_cards() < 17:  # dealer must hit when under 17
 				self.dealer_hand.add_card(self.deck.deal_card())
 			else:
 				again = False
-			self.display_state_of_game(player_hand)
-		self.display_state_of_game(player_hand)
+			self.display_state_of_game(self.dealer_hand, player_hand)
+		#self.display_state_of_game(self.dealer_hand, player_hand)
 
-	def display_state_of_game(self, hand=[], empty= False):
-		clear_window()
-		if empty:
-			self.dealer_hand.display_empty_hand()  # dealer side
-			self.player_hand.display_empty_hand()  # default to player since the hand will always exist	
-			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, 0))  # display wager
-		else:
-			self.dealer_hand.display_hand()
-			hand.display_hand()
-			print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, hand.wager))  # display wager	
-
-	def suggest_recommendation(self, hand):
+	def recommend_strategy(self, hand):
 		Ace = 'A'
-		if card_rank_equal(hand.cards[first_card], hand.cards[second_card]) and len(hand.cards) < 3:
-			strategy = self.make_pair_recommendation(hand)
+		if (hand.cards[first_card] == hand.cards[second_card]) and len(hand.cards) < 3:
+			strategy = make_pair_recommendation(hand.cards[first_card].rank, self.dealer_hand.get_visible_card_rank())
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] != Ace: # always check the dealer's face-up card
-			strategy = self.make_hard_total_recommendation(hand)
+			strategy = make_hard_total_recommendation(hand.get_sum_of_cards(), self.dealer_hand.get_visible_card_rank())
 		elif hand.cards[first_card].rank != Ace and hand.cards[second_card] == Ace:
-			strategy = self.make_soft_total_recommendation(hand, 0)
+			strategy = make_soft_total_recommendation(hand.cards[first_card].rank, self.dealer_hand.get_visible_card_rank())
 		elif hand.cards[first_card].rank == Ace and hand.cards[second_card] != Ace:
-			strategy = self.make_soft_total_recommendation(hand, 1)
+			strategy = make_soft_total_recommendation(hand.cards[second_card].rank, self.dealer_hand.get_visible_card_rank())
 		else:
-			strategy = self.make_hard_total_recommendation(hand)
+			strategy = make_hard_total_recommendation(hand.get_sum_of_cards(), self.dealer_hand.get_visible_card_rank())
 		print('\nThe recommended strategy is to:', strategy)
-
-	def make_pair_recommendation(self, hand):
-		if hand.is_split:
-			strategy = self.make_hard_total_recommendation(hand)
-		else:
-			strategy = pair_splitting.get((hand.cards[first_card].rank, self.dealer_hand.get_visible_card_rank()))
-		if strategy == None:
-			strategy = 'Stand'
-		return strategy
-
-	def make_hard_total_recommendation(self, hand):
-		strategy = hard_totals.get((hand.get_sum_of_cards(), self.dealer_hand.get_visible_card_rank()))
-		if strategy == None and hand.get_sum_of_cards() < 8:
-			strategy = 'Hit'
-		elif strategy == None and hand.get_sum_of_cards() > 17:
-			strategy = 'Stand'
-		return strategy
-
-	def make_soft_total_recommendation(self, hand, non_ace_index):
-		strategy = soft_totals.get((hand.cards[non_ace_index].rank, self.dealer_hand.get_visible_card_rank()))
-		return strategy
 
 	def display_final_outcome(self, hand):
 		if hand.has_blackjack():
@@ -226,9 +192,6 @@ class Game:
 		
 		self.resolve_wager(self.player_hand)
 		self.resolve_wager(self.player_second_hand)
-		
-		self.display_state_of_game(self.player_hand)
-		self.display_state_of_game(self.player_second_hand)
 
 	def split_hand(self):
 		""" Create a second hand so the user can play using both hands
@@ -246,3 +209,31 @@ class Game:
 		# double wager
 		self.winnings -= self.player_hand.wager
 		self.player_second_hand.wager += self.player_hand.wager
+
+
+	def display_empty_game(self):
+		clear_window()
+		lines = [''] * max_card_height
+		for i in range(2):  # display 2 cards
+			lines[0] += '┌─────────┐'
+			lines[1] += '│         │'
+			lines[2] += '│         │'
+			lines[3] += '│         │'
+			lines[4] += '│         │'
+			lines[5] += '│         │'
+			lines[6] += '│         │' 
+			lines[7] += '│         │'
+			lines[8] += '└─────────┘'
+		for line in lines:
+			print(line)
+		for line in lines:
+			print(line)
+		print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, 0))  # display wager
+
+	def display_state_of_game(self, dealer_hand, hand):
+		clear_window()
+		dealer_hand.display_hand()
+		hand.display_hand()
+		print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, hand.wager))  # display wager	
+
+
