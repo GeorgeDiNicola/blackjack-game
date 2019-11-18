@@ -1,289 +1,47 @@
+"""This is a module for searching statistically best strategies given the dealer's faceup card and the player's hand in a game of blackjack.
+
+"""
+
 def make_pair_recommendation(rank, sum_of_dealer_hand):
+	"""Search the "pair splitting" dictionary for the statistically best move to make when user has pair of cards.
+
+		Keyword Arguments:
+			rank (string/int) -- the rank of the card pair the player has.
+			sum_of_dealer_hand (int) -- the total value of the dealer's hand
+	"""
 	strategy = pair_splitting.get((rank, sum_of_dealer_hand))
 	if strategy == None:
 		strategy = 'Stand'
 	return strategy
 
-def make_hard_total_recommendation(sum_of_cards, sum_of_dealer_hand):
-	strategy = hard_totals.get((sum_of_cards, sum_of_dealer_hand))
-	if strategy == None and sum_of_cards < 8:
+def make_soft_total_recommendation(rank_of_non_ace, sum_of_dealer_hand):
+	"""Search the "soft totals" dictionary for the statistically best move to make when user has one ace card and one non-ace card.
+
+		Keyword Arguments:
+			sum_of_player_hand (int) -- the total value of the player's hand.
+			sum_of_dealer_hand (int) -- the total value of the dealer's hand.
+	"""
+	strategy = soft_totals.get((rank_of_non_ace, sum_of_dealer_hand))
+	return strategy
+
+def make_hard_total_recommendation(sum_of_player_hand, sum_of_dealer_hand):
+	"""Search the "hard totals" dictionary for the statistically best move to make when user does not have a pair nor an ace card.
+
+		Keyword Arguments:
+			sum_of_player_hand (int) -- the total value of the player's hand.
+			sum_of_dealer_hand (int) -- the total value of the dealer's hand.
+	"""
+	strategy = hard_totals.get((sum_of_player_hand, sum_of_dealer_hand))
+	if strategy == None and sum_of_player_hand < 8:
 		strategy = 'Hit'
-	elif strategy == None and sum_of_cards > 17:
+	elif strategy == None and sum_of_player_hand > 17:
 		strategy = 'Stand'
 	return strategy
 
-def make_soft_total_recommendation(rank, sum_of_dealer_hand):
-	strategy = soft_totals.get((rank, sum_of_dealer_hand))
-	return strategy
 
-# Below are the stategy tables for any situation during a blackjack turn.
+# Below are the stategy dictionaries for any situation during a blackjack turn.
 
-
-# first item represents user total, second represents dealer upcard
-# hit on anything under 8
-hard_totals = {
-	
-	(8,2): 'Hit', 
-	(8,3): 'Hit',
-	(8,4): 'Hit',
-	(8,5): 'Hit',
-	(8,6): 'Hit',
-	(8,7): 'Hit',
-	(8,8): 'Hit',
-	(8,9): 'Hit',
-	(8,10): 'Hit',
-	(8,'J'): 'Hit',
-	(8,'Q'): 'Hit',
-	(8,'K'): 'Hit',
-	(8,'A'): 'Hit',
-
-	(9,2): 'Hit',
-	(9,3): 'Double Down (Hit)',
-	(9,4): 'Double Down (Hit)',
-	(9,5): 'Double Down (Hit)',
-	(9,6): 'Double Down (Hit)',
-	(9,7): 'Hit',
-	(9,8): 'Hit',
-	(9,9): 'Hit',
-	(9,10): 'Hit',
-	(9,'J'): 'Hit',
-	(9,'Q'): 'Hit',
-	(9,'K'): 'Hit',
-	(9,'A'): 'Hit',
-
-	(10,2): 'Double Down (Hit)',
-	(10,3): 'Double Down (Hit)',
-	(10,4): 'Double Down (Hit)',
-	(10,5): 'Double Down (Hit)',
-	(10,6): 'Double Down (Hit)',
-	(10,7): 'Double Down (Hit)',
-	(10,8): 'Double Down (Hit)',
-	(10,9): 'Double Down (Hit)',
-	(10,10): 'Hit',
-	(10,'J'): 'Hit',
-	(10,'Q'): 'Hit',
-	(10,'K'): 'Hit',
-	(10,'A'): 'Hit',
-
-	(11,2): 'Double Down (Hit)',
-	(11,3): 'Double Down (Hit)',
-	(11,4): 'Double Down (Hit)',
-	(11,5): 'Double Down (Hit)',
-	(11,6): 'Double Down (Hit)',
-	(11,7): 'Double Down (Hit)',
-	(11,8): 'Double Down (Hit)',
-	(11,9): 'Double Down (Hit)',
-	(11,10): 'Double Down (Hit)',
-	(11,'J'): 'Double Down (Hit)',
-	(11,'Q'): 'Double Down (Hit)',
-	(11,'K'): 'Double Down (Hit)',
-	(11,'A'): 'Double Down (Hit)',
-
-	(12,2): 'Hit',
-	(12,3): 'Hit',
-	(12,4): 'Stand',
-	(12,5): 'Stand',
-	(12,6): 'Stand',
-	(12,7): 'Hit',
-	(12,8): 'Hit',
-	(12,9): 'Hit',
-	(12,10): 'Hit',
-	(12,'J'): 'Hit',
-	(12,'Q'): 'Hit',
-	(12,'K'): 'Hit',
-	(12,'A'): 'Hit',
-
-	(13,2): 'Stand',
-	(13,3): 'Stand',
-	(13,4): 'Stand',
-	(13,5): 'Stand',
-	(13,6): 'Stand',
-	(13,7): 'Hit',
-	(13,8): 'Hit',
-	(13,9): 'Hit',
-	(13,10): 'Hit',
-	(13,'J'): 'Hit',
-	(13,'Q'): 'Hit',
-	(13,'K'): 'Hit',
-	(13,'A'): 'Hit',
-
-	(14,2): 'Stand',
-	(14,3): 'Stand',
-	(14,4): 'Stand',
-	(14,5): 'Stand',
-	(14,6): 'Stand',
-	(14,7): 'Hit',
-	(14,8): 'Hit',
-	(14,9): 'Hit',
-	(14,10): 'Hit',
-	(14,'J'): 'Hit',
-	(14,'Q'): 'Hit',
-	(14,'K'): 'Hit',
-	(14,'A'): 'Hit',
-
-	(15,2): 'Stand',
-	(15,3): 'Stand',
-	(15,4): 'Stand',
-	(15,5): 'Stand',
-	(15,6): 'Stand',
-	(15,7): 'Hit',
-	(15,8): 'Hit',
-	(15,9): 'Hit',
-	(15,10): 'Hit',
-	(15,'J'): 'Hit',
-	(15,'Q'): 'Hit',
-	(15,'K'): 'Hit',
-	(15,'A'): 'Hit',
-
-	(16,2): 'Stand',
-	(16,3): 'Stand',
-	(16,4): 'Stand',
-	(16,5): 'Stand',
-	(16,6): 'Stand',
-	(16,7): 'Hit',
-	(16,8): 'Hit',
-	(16,9): 'Hit',
-	(16,10): 'Hit',
-	(16,'J'): 'Hit',
-	(16,'Q'): 'Hit',
-	(16,'K'): 'Hit',
-	(16,'A'): 'Hit',
-
-	(17,2): 'Stand',
-	(17,3): 'Stand',
-	(17,4): 'Stand',
-	(17,5): 'Stand',
-	(17,6): 'Stand',
-	(17,7): 'Stand',
-	(17,8): 'Stand',
-	(17,9): 'Stand',
-	(17,10): 'Stand',
-	(17,'J'): 'Stand',
-	(17,'Q'): 'Stand',
-	(17,'K'): 'Stand',
-	(17,'A'): 'Stand'
-}
-
-# first item represents non-ace card, second represents dealer upcard
-# hit on anything not in the dictionary
-soft_totals = {
-	
-	(2,2): 'Hit', 
-	(2,3): 'Hit',
-	(2,4): 'Hit',
-	(2,5): 'Double Down (Hit)',
-	(2,6): 'Double Down (Hit)',
-	(2,7): 'Hit',
-	(2,8): 'Hit',
-	(2,9): 'Hit',
-	(2,10): 'Hit',
-	(2,'J'): 'Hit',
-	(2,'Q'): 'Hit',
-	(2,'K'): 'Hit',
-	(2,'A'): 'Hit',
-
-	(3,2): 'Hit', 
-	(3,3): 'Hit',
-	(3,4): 'Hit',
-	(3,5): 'Double Down (Hit)',
-	(3,6): 'Double Down (Hit)',
-	(3,7): 'Hit',
-	(3,8): 'Hit',
-	(3,9): 'Hit',
-	(3,10): 'Hit',
-	(3,'J'): 'Hit',
-	(3,'Q'): 'Hit',
-	(3,'K'): 'Hit',
-	(3,'A'): 'Hit',
-
-	(4,2): 'Hit', 
-	(4,3): 'Hit',
-	(4,4): 'Double Down (Hit)',
-	(4,5): 'Double Down (Hit)',
-	(4,6): 'Double Down (Hit)',
-	(4,7): 'Hit',
-	(4,8): 'Hit',
-	(4,9): 'Hit',
-	(4,10): 'Hit',
-	(4,'J'): 'Hit',
-	(4,'Q'): 'Hit',
-	(4,'K'): 'Hit',
-	(4,'A'): 'Hit',
-
-	(5,2): 'Hit', 
-	(5,3): 'Hit',
-	(5,4): 'Double Down (Hit)',
-	(5,5): 'Double Down (Hit)',
-	(5,6): 'Double Down (Hit)',
-	(5,7): 'Hit',
-	(5,8): 'Hit',
-	(5,9): 'Hit',
-	(5,10): 'Hit',
-	(5,'J'): 'Hit',
-	(5,'Q'): 'Hit',
-	(5,'K'): 'Hit',
-	(5,'A'): 'Hit',
-
-	(6,2): 'Hit', 
-	(6,3): 'Double Down (Hit)',
-	(6,4): 'Double Down (Hit)',
-	(6,5): 'Double Down (Hit)',
-	(6,6): 'Double Down (Hit)',
-	(6,7): 'Hit',
-	(6,8): 'Hit',
-	(6,9): 'Hit',
-	(6,10): 'Hit',
-	(6,'J'): 'Hit',
-	(6,'Q'): 'Hit',
-	(6,'K'): 'Hit',
-	(6,'A'): 'Hit',
-
-	(7,2): 'Double Down (Stand)', 
-	(7,3): 'Double Down (Stand)',
-	(7,4): 'Double Down (Stand)',
-	(7,5): 'Double Down (Stand)',
-	(7,6): 'Double Down (Stand)',
-	(7,7): 'Stand',
-	(7,8): 'Stand',
-	(7,9): 'Hit',
-	(7,10): 'Hit',
-	(7,'J'): 'Hit',
-	(7,'Q'): 'Hit',
-	(7,'K'): 'Hit',
-	(7,'A'): 'Hit',
-
-	(8,2): 'Stand', 
-	(8,3): 'Stand',
-	(8,4): 'Stand',
-	(8,5): 'Stand',
-	(8,6): 'Double Down (Stand)',
-	(8,7): 'Stand',
-	(8,8): 'Stand',
-	(8,9): 'Stand',
-	(8,10): 'Stand',
-	(8,'J'): 'Stand',
-	(8,'Q'): 'Stand',
-	(8,'K'): 'Stand',
-	(8,'A'): 'Stand',
-
-	(9,2): 'Stand', 
-	(9,3): 'Stand',
-	(9,4): 'Stand',
-	(9,5): 'Stand',
-	(9,6): 'Stand',
-	(9,7): 'Stand',
-	(9,8): 'Stand',
-	(9,9): 'Stand',
-	(9,10): 'Stand',
-	(9,'J'): 'Stand',
-	(9,'Q'): 'Stand',
-	(9,'K'): 'Stand',
-	(9,'A'): 'Stand'
-}
-
-
-# first item represents user total, second represents dealer upcard
-# hit on anything not in the dictionary
+# The first item represents the total value of the player's hand, the second represents dealer's visible card.
 pair_splitting = {
 	
 	(2,2): 'Hit', 
@@ -453,4 +211,264 @@ pair_splitting = {
 	('A','Q'): 'Split',
 	('A','K'): 'Split',
 	('A','A'): 'Split'
+}
+
+# The first item represents non-ace card, the second represents dealer's visible card.
+soft_totals = {
+	
+	(2,2): 'Hit', 
+	(2,3): 'Hit',
+	(2,4): 'Hit',
+	(2,5): 'Double Down (Hit)',
+	(2,6): 'Double Down (Hit)',
+	(2,7): 'Hit',
+	(2,8): 'Hit',
+	(2,9): 'Hit',
+	(2,10): 'Hit',
+	(2,'J'): 'Hit',
+	(2,'Q'): 'Hit',
+	(2,'K'): 'Hit',
+	(2,'A'): 'Hit',
+
+	(3,2): 'Hit', 
+	(3,3): 'Hit',
+	(3,4): 'Hit',
+	(3,5): 'Double Down (Hit)',
+	(3,6): 'Double Down (Hit)',
+	(3,7): 'Hit',
+	(3,8): 'Hit',
+	(3,9): 'Hit',
+	(3,10): 'Hit',
+	(3,'J'): 'Hit',
+	(3,'Q'): 'Hit',
+	(3,'K'): 'Hit',
+	(3,'A'): 'Hit',
+
+	(4,2): 'Hit', 
+	(4,3): 'Hit',
+	(4,4): 'Double Down (Hit)',
+	(4,5): 'Double Down (Hit)',
+	(4,6): 'Double Down (Hit)',
+	(4,7): 'Hit',
+	(4,8): 'Hit',
+	(4,9): 'Hit',
+	(4,10): 'Hit',
+	(4,'J'): 'Hit',
+	(4,'Q'): 'Hit',
+	(4,'K'): 'Hit',
+	(4,'A'): 'Hit',
+
+	(5,2): 'Hit', 
+	(5,3): 'Hit',
+	(5,4): 'Double Down (Hit)',
+	(5,5): 'Double Down (Hit)',
+	(5,6): 'Double Down (Hit)',
+	(5,7): 'Hit',
+	(5,8): 'Hit',
+	(5,9): 'Hit',
+	(5,10): 'Hit',
+	(5,'J'): 'Hit',
+	(5,'Q'): 'Hit',
+	(5,'K'): 'Hit',
+	(5,'A'): 'Hit',
+
+	(6,2): 'Hit', 
+	(6,3): 'Double Down (Hit)',
+	(6,4): 'Double Down (Hit)',
+	(6,5): 'Double Down (Hit)',
+	(6,6): 'Double Down (Hit)',
+	(6,7): 'Hit',
+	(6,8): 'Hit',
+	(6,9): 'Hit',
+	(6,10): 'Hit',
+	(6,'J'): 'Hit',
+	(6,'Q'): 'Hit',
+	(6,'K'): 'Hit',
+	(6,'A'): 'Hit',
+
+	(7,2): 'Double Down (Stand)', 
+	(7,3): 'Double Down (Stand)',
+	(7,4): 'Double Down (Stand)',
+	(7,5): 'Double Down (Stand)',
+	(7,6): 'Double Down (Stand)',
+	(7,7): 'Stand',
+	(7,8): 'Stand',
+	(7,9): 'Hit',
+	(7,10): 'Hit',
+	(7,'J'): 'Hit',
+	(7,'Q'): 'Hit',
+	(7,'K'): 'Hit',
+	(7,'A'): 'Hit',
+
+	(8,2): 'Stand', 
+	(8,3): 'Stand',
+	(8,4): 'Stand',
+	(8,5): 'Stand',
+	(8,6): 'Double Down (Stand)',
+	(8,7): 'Stand',
+	(8,8): 'Stand',
+	(8,9): 'Stand',
+	(8,10): 'Stand',
+	(8,'J'): 'Stand',
+	(8,'Q'): 'Stand',
+	(8,'K'): 'Stand',
+	(8,'A'): 'Stand',
+
+	(9,2): 'Stand', 
+	(9,3): 'Stand',
+	(9,4): 'Stand',
+	(9,5): 'Stand',
+	(9,6): 'Stand',
+	(9,7): 'Stand',
+	(9,8): 'Stand',
+	(9,9): 'Stand',
+	(9,10): 'Stand',
+	(9,'J'): 'Stand',
+	(9,'Q'): 'Stand',
+	(9,'K'): 'Stand',
+	(9,'A'): 'Stand'
+}
+
+# The first item represents the total value of the player's hand, the second represents dealer's visible card.
+hard_totals = {
+	
+	(8,2): 'Hit', 
+	(8,3): 'Hit',
+	(8,4): 'Hit',
+	(8,5): 'Hit',
+	(8,6): 'Hit',
+	(8,7): 'Hit',
+	(8,8): 'Hit',
+	(8,9): 'Hit',
+	(8,10): 'Hit',
+	(8,'J'): 'Hit',
+	(8,'Q'): 'Hit',
+	(8,'K'): 'Hit',
+	(8,'A'): 'Hit',
+
+	(9,2): 'Hit',
+	(9,3): 'Double Down (Hit)',
+	(9,4): 'Double Down (Hit)',
+	(9,5): 'Double Down (Hit)',
+	(9,6): 'Double Down (Hit)',
+	(9,7): 'Hit',
+	(9,8): 'Hit',
+	(9,9): 'Hit',
+	(9,10): 'Hit',
+	(9,'J'): 'Hit',
+	(9,'Q'): 'Hit',
+	(9,'K'): 'Hit',
+	(9,'A'): 'Hit',
+
+	(10,2): 'Double Down (Hit)',
+	(10,3): 'Double Down (Hit)',
+	(10,4): 'Double Down (Hit)',
+	(10,5): 'Double Down (Hit)',
+	(10,6): 'Double Down (Hit)',
+	(10,7): 'Double Down (Hit)',
+	(10,8): 'Double Down (Hit)',
+	(10,9): 'Double Down (Hit)',
+	(10,10): 'Hit',
+	(10,'J'): 'Hit',
+	(10,'Q'): 'Hit',
+	(10,'K'): 'Hit',
+	(10,'A'): 'Hit',
+
+	(11,2): 'Double Down (Hit)',
+	(11,3): 'Double Down (Hit)',
+	(11,4): 'Double Down (Hit)',
+	(11,5): 'Double Down (Hit)',
+	(11,6): 'Double Down (Hit)',
+	(11,7): 'Double Down (Hit)',
+	(11,8): 'Double Down (Hit)',
+	(11,9): 'Double Down (Hit)',
+	(11,10): 'Double Down (Hit)',
+	(11,'J'): 'Double Down (Hit)',
+	(11,'Q'): 'Double Down (Hit)',
+	(11,'K'): 'Double Down (Hit)',
+	(11,'A'): 'Double Down (Hit)',
+
+	(12,2): 'Hit',
+	(12,3): 'Hit',
+	(12,4): 'Stand',
+	(12,5): 'Stand',
+	(12,6): 'Stand',
+	(12,7): 'Hit',
+	(12,8): 'Hit',
+	(12,9): 'Hit',
+	(12,10): 'Hit',
+	(12,'J'): 'Hit',
+	(12,'Q'): 'Hit',
+	(12,'K'): 'Hit',
+	(12,'A'): 'Hit',
+
+	(13,2): 'Stand',
+	(13,3): 'Stand',
+	(13,4): 'Stand',
+	(13,5): 'Stand',
+	(13,6): 'Stand',
+	(13,7): 'Hit',
+	(13,8): 'Hit',
+	(13,9): 'Hit',
+	(13,10): 'Hit',
+	(13,'J'): 'Hit',
+	(13,'Q'): 'Hit',
+	(13,'K'): 'Hit',
+	(13,'A'): 'Hit',
+
+	(14,2): 'Stand',
+	(14,3): 'Stand',
+	(14,4): 'Stand',
+	(14,5): 'Stand',
+	(14,6): 'Stand',
+	(14,7): 'Hit',
+	(14,8): 'Hit',
+	(14,9): 'Hit',
+	(14,10): 'Hit',
+	(14,'J'): 'Hit',
+	(14,'Q'): 'Hit',
+	(14,'K'): 'Hit',
+	(14,'A'): 'Hit',
+
+	(15,2): 'Stand',
+	(15,3): 'Stand',
+	(15,4): 'Stand',
+	(15,5): 'Stand',
+	(15,6): 'Stand',
+	(15,7): 'Hit',
+	(15,8): 'Hit',
+	(15,9): 'Hit',
+	(15,10): 'Hit',
+	(15,'J'): 'Hit',
+	(15,'Q'): 'Hit',
+	(15,'K'): 'Hit',
+	(15,'A'): 'Hit',
+
+	(16,2): 'Stand',
+	(16,3): 'Stand',
+	(16,4): 'Stand',
+	(16,5): 'Stand',
+	(16,6): 'Stand',
+	(16,7): 'Hit',
+	(16,8): 'Hit',
+	(16,9): 'Hit',
+	(16,10): 'Hit',
+	(16,'J'): 'Hit',
+	(16,'Q'): 'Hit',
+	(16,'K'): 'Hit',
+	(16,'A'): 'Hit',
+
+	(17,2): 'Stand',
+	(17,3): 'Stand',
+	(17,4): 'Stand',
+	(17,5): 'Stand',
+	(17,6): 'Stand',
+	(17,7): 'Stand',
+	(17,8): 'Stand',
+	(17,9): 'Stand',
+	(17,10): 'Stand',
+	(17,'J'): 'Stand',
+	(17,'Q'): 'Stand',
+	(17,'K'): 'Stand',
+	(17,'A'): 'Stand'
 }
