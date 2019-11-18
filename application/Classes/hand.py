@@ -68,13 +68,6 @@ class Hand:
 		else:
 			return False
 
-	def get_sum_of_cards(self):
-		return self.sum_of_cards
-
-	# not a great function
-	def get_visible_card_rank(self):
-		return self.cards[second_card].rank  # alter to only be dealer
-
 	def get_over_21_status(self):
 		if self.sum_of_cards > 21:
 			return True

@@ -1,4 +1,3 @@
-
 def make_pair_recommendation(rank, sum_of_dealer_hand):
 	strategy = pair_splitting.get((rank, sum_of_dealer_hand))
 	if strategy == None:
