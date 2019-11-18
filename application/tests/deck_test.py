@@ -1,7 +1,7 @@
 import unittest, sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../')
-from Classes.deck import *
+from classes.deck import *
 
 class Deck_Tests(unittest.TestCase):
 

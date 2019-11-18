@@ -1,8 +1,8 @@
 import os, time, sys
 
-from Classes.deck import Deck
-from Classes.card import Card
-from Classes.hand import Hand
+from classes.deck import Deck
+from classes.card import Card
+from classes.hand import Hand
 import utils as util
 import blackjack_strategy as bs
 
