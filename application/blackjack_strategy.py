@@ -1,6 +1,26 @@
+def make_pair_recommendation(rank, sum_of_dealer_hand):
+	strategy = pair_splitting.get((rank, sum_of_dealer_hand))
+	if strategy == None:
+		strategy = 'Stand'
+	return strategy
+
+def make_hard_total_recommendation(sum_of_cards, sum_of_dealer_hand):
+	strategy = hard_totals.get((sum_of_cards, sum_of_dealer_hand))
+	if strategy == None and sum_of_cards < 8:
+		strategy = 'Hit'
+	elif strategy == None and sum_of_cards > 17:
+		strategy = 'Stand'
+	return strategy
+
+def make_soft_total_recommendation(rank, sum_of_dealer_hand):
+	strategy = soft_totals.get((rank, sum_of_dealer_hand))
+	return strategy
+
+# Below are the stategy tables for any situation during a blackjack turn.
+
+
 # first item represents user total, second represents dealer upcard
 # hit on anything under 8
-
 hard_totals = {
 	
 	(8,2): 'Hit', 
@@ -144,10 +164,8 @@ hard_totals = {
 	(17,'A'): 'Stand'
 }
 
-
 # first item represents non-ace card, second represents dealer upcard
 # hit on anything not in the dictionary
-
 soft_totals = {
 	
 	(2,2): 'Hit', 
@@ -266,7 +284,6 @@ soft_totals = {
 
 # first item represents user total, second represents dealer upcard
 # hit on anything not in the dictionary
-
 pair_splitting = {
 	
 	(2,2): 'Hit', 

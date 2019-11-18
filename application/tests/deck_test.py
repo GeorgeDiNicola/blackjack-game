@@ -8,6 +8,9 @@ class Deck_Tests(unittest.TestCase):
 	def setUp(self):
 		self.deck = Deck()
 
+	def test_length_of_deck(self):
+		self.assertEqual(len(self.deck.cards), 52)
+
 	def test_shuffle(self):
 		self.assertNotEqual(self.deck.shuffle(), self.deck)
 
