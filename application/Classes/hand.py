@@ -1,5 +1,4 @@
-import os
-from utils import *
+import utils as util
 
 first_card = 0
 second_card = 1
@@ -48,16 +47,23 @@ class Hand:
 	def reset_wager(self):
 		self.wager = 0
 
+	def prompt_for_wager(self, winnings):
+		prompt = "\nHow much would you like to wager?\n  $(1)  $(5)  $(10)  $(15)  $(20)\n\nWager Amount: "
+		allowable_bets = ['1', '5', '10', '15', '20']
+		error_message = 'Please choose a valid bet amount. Type in without the dollar sign!'
+		input_invalid = True
+		while input_invalid:
+			wager_choice = util.get_valid_input(prompt, allowable_bets, error_message)
+			if winnings - int(wager_choice) < 0:
+				print('You do not have enough money. Please make a lower wager.')
+			else:
+				input_invalid = False
+		self.wager = int(wager_choice)
+
 	def has_blackjack(self):
 		if (self.cards[first_card].value == 10 and self.cards[second_card].rank == 'A'):
 			return True
 		elif (self.cards[second_card].value == 10 and self.cards[first_card].rank == 'A'):
-			return True
-		else:
-			return False
-
-	def card_rank_equal(self, card1, card2):
-		if card1.rank == card2.rank:
 			return True
 		else:
 			return False
@@ -75,26 +81,12 @@ class Hand:
 		else:
 			return False
 
-	def prompt_for_wager(self, winnings):
-		prompt = "\nHow much would you like to wager?\n  $(1)  $(5)  $(10)  $(15)  $(20)\n\nWager Amount: "
-		allowable_bets = ['1', '5', '10', '15', '20']
-		error_message = 'Please choose a valid bet amount. Type in without the dollar sign!'
-		input_invalid = True
-		while input_invalid:
-			wager_choice = get_valid_input(prompt, allowable_bets, error_message)
-			if winnings - int(wager_choice) < 0:
-				print('You do not have enough money. Please make a lower wager.')
-			else:
-				input_invalid = False
-		self.wager = int(wager_choice)
-
-
 	def display_hand(self):
-		lines = self.format_hand()
+		lines = self._format_hand()
 		for line in lines:
 			print(line)
 
-	def format_hand(self):
+	def _format_hand(self):
 		lines = [''] * max_card_height
 		for card in self.cards:
 		    if card.facedown:
