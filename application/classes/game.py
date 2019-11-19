@@ -148,6 +148,7 @@ class Game:
 				self.dealer_hand.add_card(self.deck.deal_card())
 			else:
 				again = False
+			time.sleep(0.50)
 			self.display_state_of_game(player_hand)
 
 
@@ -235,6 +236,7 @@ class Game:
 		print('\n   Funds: ${} | Bet: ${}'.format(self.winnings, 0))  # display wager
 
 	def display_state_of_game(self, player_hand):
+		time.sleep(.20)
 		util.clear_window()
 		self.dealer_hand.display_hand()
 		player_hand.display_hand()
