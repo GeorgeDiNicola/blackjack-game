@@ -10,7 +10,7 @@ The objective of the game is to beat the dealer. To beat the dealer, the sum of 
 
 Exception: If you draw an Ace card and a card with a value of 10, then you have "Blackjack" and automatically win the game.
 
-Payout (you):
-Blackjack: pays 3:1 \n
-Win: pays 1:1 \n
+Payout (you):<br/>
+Blackjack: pays 3:1<br/>
+Win: pays 1:1<br/>
 Lose: lose wager
