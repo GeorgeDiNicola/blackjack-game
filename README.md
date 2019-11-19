@@ -12,6 +12,7 @@ For more information about how to play Blackjack: https://bicyclecards.com/how-t
 Note: This game does NOT allow the player to purchase insurance. 
 
 # How to play in the terminal
-*The game initializes with the player having $100 to spend betting on the game.
-*The game will begin by asking for a wager. You may choose to wager $1, $5, $10, or $20 (when you type these, do NOT type the dollar sign). 
-*
+-The game initializes with the player having $100 to spend betting on the game.
+-The game will begin by asking for a wager. You may choose to wager $1, $5, $10, or $20 (when you type these, do NOT type the dollar sign). 
+-If the first two cards you receive have an equal rank (ex: "Q" and "Q"), then you will be asked if you would like to split. Inputting the letter "Y" will allow you to split and from then on you will play using two hands. In addition your wager will double since the newly dealt hand will need to match the wager you initially made. If you choose "N" to indicate no, then the game will go on as normal (using one hand). You may only split once during the game.
+-If the first two cards you receive are not equal in rank, then you will be asked if you would like to Hit (H), Stand (S), or Double Down (D). Above the prompt, the game's decision assistant will suggest the best choice to make based on probablitiy of winning.
