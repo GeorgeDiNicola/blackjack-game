@@ -170,6 +170,7 @@ class Game:
 				self.dealer_hand.add_card(self.deck.deal_card())
 			else:
 				again = False
+			time.sleep(.50)
 			self.display_state_of_game(player_hand)
 
 
@@ -242,6 +243,7 @@ class Game:
 		Keyword Arguments:
 			player_hand (Hand) -- the player's hand playing the current turn.
 		"""
+		time.sleep(.20)
 		util.clear_window()
 		self.dealer_hand.display_hand()
 		player_hand.display_hand()
