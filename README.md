@@ -4,6 +4,10 @@ A terminal-based Blackjack game with a built-in decision assistant that recommen
 
 <img src="https://media.giphy.com/media/cnuv9TbEAA8NN4h6c5/giphy.gif" width="576" height="401" />
 
+# Run the Application Using Docker
+execute the following command in your terminal: 
+- docker run -it georgedinicola/blackjack-game:v0.0.0
+
 # How to play Blackjack:
 
 The objective of the game is to beat the dealer. To beat the dealer, the sum of the cards in your hand will need to be greater than the sum of the cards in the dealer's hand, without being over 21. If you reach a sum over 21, you lose. If the dealer reaches a sum over 21 (and you have not), then you win.
@@ -21,7 +25,3 @@ Note: This game does NOT allow the player to purchase insurance.
 - If your turn ends without going over 21, the dealer will then play. As per casino rules, the dealer must hit whenever he or she has under 17 and may not hit on any hand valued at 17 or more.
 - After the dealer's turn, you will either be paid out your winnings (which will be added to "Funds"), or your wager will be forfeited to the dealer.
 - Note: If you receive Blackjack (an Ace card and a card with a value of 10), you will automatically win and your wager will be paid out 3:1. 
-
-# Run the Application with Docker
-execute the following command in your terminal: 
-- docker run -it georgedinicola/blackjack-game:v0.0.0
