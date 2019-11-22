@@ -23,4 +23,5 @@ Note: This game does NOT allow the player to purchase insurance.
 - Note: If you receive Blackjack (an Ace card and a card with a value of 10), you will automatically win and your wager will be paid out 3:1. 
 
 # Run the Application with Docker
-execute the following command in your terminal: docker run -it georgedinicola/blackjack-game:v0.0.0
+execute the following command in your terminal: 
+- docker run -it georgedinicola/blackjack-game:v0.0.0
