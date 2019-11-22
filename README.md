@@ -5,7 +5,7 @@ A terminal-based Blackjack game with a built-in decision assistant that recommen
 <img src="https://media.giphy.com/media/cnuv9TbEAA8NN4h6c5/giphy.gif" width="576" height="401" />
 
 # Run the Application Using Docker
-execute the following command in your terminal: 
+Execute the following command in your terminal: 
 - docker run -it georgedinicola/blackjack-game:v0.0.0
 
 # How to play Blackjack:
